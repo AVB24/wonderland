@@ -1,0 +1,11 @@
+{% load wonderland_tags wagtailcore_tags %}
+{% get_site_root as site_root %}
+
+{# Implementation of bootstrap theme dropdown menu - shows top level links and their children #}
+<ul class="nav navbar-nav">
+    {% for menu in menuitems %}
+      <li>
+        <a href="{{menu.url}}">{{menu.title}}</a>
+      </li>
+    {% endfor %}
+</ul>

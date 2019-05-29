@@ -1,10 +1,12 @@
 from django import forms
 from django.db import models
-
+from django.contrib.auth.models import User
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.admin.edit_handlers import (FieldPanel)
 from wagtail.snippets.models import register_snippet
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 @register_snippet
@@ -105,7 +107,14 @@ class Car(models.Model):
 @register_snippet
 class Racer(models.Model):
     email = models.EmailField(unique=True)
+    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    icon = models.ForeignKey(
+        'wagtailimages.Image', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='+'
+    )
     name = models.CharField(max_length=255)
+    bio = models.CharField(max_length=255,null=True,blank=True)
+    birth_date = models.DateField(null=True,blank=True)
     city = models.CharField(max_length=255,null=True,blank=True)
     state = models.CharField(max_length=255,null=True,blank=True)
     points = models.IntegerField(null=True,blank=True)
@@ -113,8 +122,12 @@ class Racer(models.Model):
     sponsors = models.ManyToManyField(Sponsor,null=True,blank=True)
 
     panels = [
+        ImageChooserPanel('icon'),
+        FieldPanel('user', widget=forms.Select),
         FieldPanel('email', widget=forms.EmailInput),
         FieldPanel('name'),
+        FieldPanel('bio'),
+        FieldPanel('birth_date'),
         FieldPanel('city'),
         FieldPanel('state'),
         FieldPanel('points'),
@@ -154,3 +167,12 @@ class Lap(models.Model):
 
     class Meta:
         verbose_name_plural = 'laps'
+
+@receiver(post_save, sender=User)
+def create_user_racer(sender, instance, created, **kwargs):
+    if created:
+        Racer.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_racer(sender, instance, **kwargs):
+    instance.racer.save()

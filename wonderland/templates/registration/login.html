@@ -2,17 +2,16 @@
 {% extends 'base.html' %}
 {% block title %}Login{% endblock %}
 {% block content %}
-<h2>Login</h2>
-<br>
-<div class="col-lg-4 col-sm-4">
-  <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button class="btn btn-success" type="submit">Sign In!</button>
-        <br><br>
-        <p>Need to <a href="{% url 'signup' %}">Sign Up</a>?</p>
-      </div>
-    </form>
-</div>
-
+  <h2>Login</h2>
+  <br>
+  <div class="col-lg-4 col-sm-4">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success" type="submit">Sign In!</button>
+          <br><br>
+          <p>Need to <a href="{% url 'signup' %}">Sign Up</a>?</p>
+        </div>
+      </form>
+  </div>
 {% endblock %}

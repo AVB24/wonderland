@@ -5,6 +5,7 @@ from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.admin.edit_handlers import (FieldPanel)
 from wagtail.snippets.models import register_snippet
+from wagtail.search import index
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 # Create your models here.
@@ -119,7 +120,7 @@ class Racer(models.Model):
     state = models.CharField(max_length=255,null=True,blank=True)
     points = models.IntegerField(null=True,blank=True)
     cars = models.ManyToManyField(Car)
-    sponsors = models.ManyToManyField(Sponsor,null=True,blank=True)
+    sponsors = models.ManyToManyField(Sponsor,blank=True)
 
     panels = [
         ImageChooserPanel('icon'),
@@ -143,27 +144,41 @@ class Racer(models.Model):
 
 
 @register_snippet
-class Lap(models.Model):
+class Lap(index.Indexed, models.Model):
     racer = models.ForeignKey(Racer, on_delete=models.CASCADE)
     raceclass = models.ForeignKey(RaceClass, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event,null=True,blank=True, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     time = models.FloatField()
     lap_date = models.DateField("Lap date")
     best = models.BooleanField("Is Best?")
 
+    search_fields = [
+        index.FilterField('best'),
+
+        index.RelatedFields('racer', [
+            index.SearchField('name', partial_match=True),
+        ]),
+        index.RelatedFields('raceclass', [
+            index.SearchField('name', partial_match=True),
+        ]),
+        index.RelatedFields('track', [
+            index.SearchField('name', partial_match=True),
+        ]),
+    ]
+
     panels = [
-        FieldPanel('racer', widget=forms.SelectMultiple),
-        FieldPanel('raceclass', widget=forms.SelectMultiple),
-        FieldPanel('event', widget=forms.SelectMultiple),
-        FieldPanel('track', widget=forms.SelectMultiple),
+        FieldPanel('racer', widget=forms.Select),
+        FieldPanel('raceclass', widget=forms.Select),
+        FieldPanel('event', widget=forms.Select),
+        FieldPanel('track', widget=forms.Select),
         FieldPanel('time'),
         FieldPanel('lap_date'),
         FieldPanel('best'),
     ]
 
     def __str__(self):
-        return self.name
+        return "racer='%s', raceclass='%s', event='%s', time='%s'" % (self.racer, self.raceclass, self.event, self.time)
 
     class Meta:
         verbose_name_plural = 'laps'

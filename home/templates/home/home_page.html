@@ -2,9 +2,9 @@
 
 {% load wagtailcore_tags %}
 
-
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    {{ page.body|richtext }}
+    <h1 class='site-title'>{{ page.title }}</h1>
+    {{ page.body | richtext }}
 {% endblock %}

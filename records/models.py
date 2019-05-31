@@ -1,6 +1,9 @@
 from django import forms
 from django.db import models
 from django.contrib.auth.models import User
+from wagtail.core.models import Page
+from wagtail.core.fields import RichTextField
+
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.admin.edit_handlers import (FieldPanel)
@@ -9,6 +12,24 @@ from wagtail.search import index
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 # Create your models here.
+
+
+
+
+class MemberPage(Page):
+    intro = models.CharField(max_length=250)
+    body = RichTextField(blank=True)
+
+    search_fields = Page.search_fields + [
+        index.SearchField('intro'),
+        index.SearchField('body'),
+    ]
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('body', classname="full"),
+    ]
+
 
 @register_snippet
 class Track(models.Model):

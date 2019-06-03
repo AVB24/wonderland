@@ -1,5 +1,7 @@
 from django import template
 from django.conf import settings
+from records.models import Lap
+from wagtail.search.backends import get_search_backend
 
 register = template.Library()
 
@@ -29,5 +31,41 @@ def top_menu(context, parent, calling_page=None):
         'calling_page': calling_page,
         'menuitems': menuitems,
         # required by the pageurl tag that we want to use within this template
+        'request': context['request'],
+    }
+
+@register.inclusion_tag('records/tags/lap_results.html', takes_context=True)
+def get_laps(context, query, is_best):
+    print("Hello")
+    if query:
+        s = get_search_backend()
+        laps = s.search(query, Lap.objects.filter(best=is_best), operator="and")
+    else:
+        laps = Lap.objects.all().filter(best=is_best)
+
+    return {
+        'laps': laps,
+        'request': context['request'],
+    }
+
+@register.inclusion_tag('records/tags/lap_results.html', takes_context=True)
+def get_search(context):
+    request = context['request']
+    search_query = str(request.GET.get('query', None))
+    best = str(request.GET.get('best', None))
+    if best == 'None':
+        is_best = False
+    else:
+        is_best = True
+    
+    if search_query:
+        s = get_search_backend()
+        laps = s.search(search_query, Lap.objects.order_by('-lap_date').filter(best=is_best), operator="and", order_by_relevance=False)
+        print(laps)
+    else:
+        laps = Lap.objects.all().order_by('-lap_date').filter(best=is_best)
+
+    return {
+        'laps': laps,
         'request': context['request'],
     }

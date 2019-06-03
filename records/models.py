@@ -13,9 +13,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 # Create your models here.
 
-
-
-
 class MemberPage(Page):
     intro = models.CharField(max_length=250)
     body = RichTextField(blank=True)
@@ -30,6 +27,18 @@ class MemberPage(Page):
         FieldPanel('body', classname="full"),
     ]
 
+class LapPage(Page):
+    intro = models.CharField(max_length=250)
+    body = RichTextField(blank=True)
+
+    search_fields = Page.search_fields + [
+        index.SearchField('intro'),
+    ]
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro'),
+        FieldPanel('body', classname="full"),
+    ]
 
 @register_snippet
 class Track(models.Model):
@@ -168,6 +177,7 @@ class Racer(models.Model):
 class Lap(index.Indexed, models.Model):
     racer = models.ForeignKey(Racer, on_delete=models.CASCADE)
     raceclass = models.ForeignKey(RaceClass, on_delete=models.CASCADE)
+    car = models.ForeignKey(Car, blank=True,on_delete=models.CASCADE)
     event = models.ForeignKey(Event,null=True,blank=True, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     time = models.FloatField()
@@ -176,6 +186,7 @@ class Lap(index.Indexed, models.Model):
 
     search_fields = [
         index.FilterField('best'),
+        index.FilterField('lap_date'),
 
         index.RelatedFields('racer', [
             index.SearchField('name', partial_match=True),
@@ -191,6 +202,7 @@ class Lap(index.Indexed, models.Model):
     panels = [
         FieldPanel('racer', widget=forms.Select),
         FieldPanel('raceclass', widget=forms.Select),
+        FieldPanel('car', widget=forms.Select),
         FieldPanel('event', widget=forms.Select),
         FieldPanel('track', widget=forms.Select),
         FieldPanel('time'),
@@ -199,7 +211,7 @@ class Lap(index.Indexed, models.Model):
     ]
 
     def __str__(self):
-        return "racer='%s', raceclass='%s', event='%s', time='%s'" % (self.racer, self.raceclass, self.event, self.time)
+        return "racer='%s', raceclass='%s', car='%s', event='%s', time='%s'" % (self.racer, self.raceclass, self.car, self.event, self.time)
 
     class Meta:
         verbose_name_plural = 'laps'

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wonderland_tags %}
+
+{% block body_class %}template-lappage{% endblock %}
+
+{% block content %}
+    <h1 class='site-title'>{{ page.title }}</h1>
+    {{ page.body | richtext }}
+    {% get_laps query='Aaron Miata' is_best=False %}
+{% endblock %}

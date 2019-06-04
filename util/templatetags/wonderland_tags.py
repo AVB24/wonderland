@@ -12,6 +12,13 @@ def get_site_root(context):
     # so object-comparison to self will return false as objects would differ
     return context['request'].site.root_page
 
+@register.simple_tag(takes_context=True)
+def get_site(context):
+    # NB this returns a core.Page, not the implementation-specific model used
+    # so object-comparison to self will return false as objects would differ
+    print(context['request'].site)
+    return context['request'].site
+
 
 # Retrieves the top menu items - the immediate children of the parent page
 @register.inclusion_tag('util/tags/top_menu.html', takes_context=True)
@@ -34,22 +41,9 @@ def top_menu(context, parent, calling_page=None):
         'request': context['request'],
     }
 
-@register.inclusion_tag('records/tags/lap_results.html', takes_context=True)
-def get_laps(context, query, is_best):
-    print("Hello")
-    if query:
-        s = get_search_backend()
-        laps = s.search(query, Lap.objects.filter(best=is_best), operator="and")
-    else:
-        laps = Lap.objects.all().filter(best=is_best)
-
-    return {
-        'laps': laps,
-        'request': context['request'],
-    }
-
-@register.inclusion_tag('records/tags/lap_results.html', takes_context=True)
-def get_search(context):
+#@register.inclusion_tag('records/tags/lap_results.html', takes_context=True)
+@register.simple_tag(takes_context=True)
+def get_laps(context):
     request = context['request']
     search_query = str(request.GET.get('query', None))
     best = str(request.GET.get('best', None))
@@ -64,8 +58,9 @@ def get_search(context):
         print(laps)
     else:
         laps = Lap.objects.all().order_by('-lap_date').filter(best=is_best)
-
+    
     return {
         'laps': laps,
         'request': context['request'],
+        'search_query': search_query,
     }

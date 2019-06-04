@@ -12,11 +12,11 @@
           <span class="icon-bar"></span>
         </button>
           <a class="navbar-brand" href="/">
-            {% with self.get_site.site_name as site_name %}
+            {% get_site as site_name %}
               {% if site_name %}{{ site_name }}{% endif %}
-            {% endwith %}
           </a>
       </div>
+
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         {% get_site_root as site_root %}

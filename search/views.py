@@ -4,6 +4,7 @@ from django.shortcuts import render
 from wagtail.core.models import Page
 from wagtail.search.models import Query
 from records.models import Lap
+from util.models import PaginationSettings
 from wagtail.search.backends import get_search_backend
 
 
@@ -11,6 +12,7 @@ def search(request):
     search_query = request.GET.get('query', None)
     best = str(request.GET.get('best', None))
     page = request.GET.get('page', 1)
+    pagination_settings = PaginationSettings.for_site(request.site)
 
     if best == 'None':
         is_best = False
@@ -30,7 +32,7 @@ def search(request):
         search_results = Lap.objects.all().order_by('-lap_date').filter(best=is_best)
 
     # Pagination
-    paginator = Paginator(search_results, 1)
+    paginator = Paginator(search_results, pagination_settings.items_per_page)
     try:
         search_results = paginator.page(page)
     except PageNotAnInteger:

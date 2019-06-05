@@ -108,3 +108,12 @@ class SiteBranding(BaseSetting):
         ImageChooserPanel('site_logo'),
         FieldPanel('banner_colour'),
     ]
+
+@register_setting
+class PaginationSettings(BaseSetting):
+    items_per_page = models.IntegerField(
+        default=10
+        )
+    panels = [
+        FieldPanel('items_per_page'),
+    ]

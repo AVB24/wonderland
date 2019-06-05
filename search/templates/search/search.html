@@ -6,7 +6,7 @@
 {% block title %}Search{% endblock %}
 
 {% block content %}
-<h1 class='site-title'>{{ page.title }}</h1>
+<h1 class='site-title'>Search Laps</h1>
 
     <form action="{% url 'search' %}" method="get">
         <input type="text" name="query"{% if search_query %} value="{{ search_query }}"{% endif %}>
@@ -35,8 +35,8 @@
                             <td>{{result.racer.name}}</td>
                             <td>{{result.raceclass.name}}</td>
                             <td>{{result.track}}</td>
-                            <td>{{result.time}}</td>
-                            <td>{{result.lap_date}}</td>
+                            <td>{{result.time | convertTime}}</td>
+                            <td>{{result.lap_date | datetime_filter}}</td>
                             <td>{{result.best}}</td>
                         </tr>
                     {% endfor %}

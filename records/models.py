@@ -27,19 +27,6 @@ class MemberPage(Page):
         FieldPanel('body', classname="full"),
     ]
 
-class LapPage(Page):
-    intro = models.CharField(max_length=250)
-    body = RichTextField(blank=True)
-
-    search_fields = Page.search_fields + [
-        index.SearchField('intro'),
-    ]
-
-    content_panels = Page.content_panels + [
-        FieldPanel('intro'),
-        FieldPanel('body', classname="full"),
-    ]
-
 @register_snippet
 class Track(models.Model):
     name = models.CharField(max_length=255)

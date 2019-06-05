@@ -1,3 +1,4 @@
+import math, datetime
 from django import template
 from django.conf import settings
 from records.models import Lap
@@ -5,6 +6,23 @@ from wagtail.search.backends import get_search_backend
 
 register = template.Library()
 
+@register.filter
+def convertTime(time):
+    hrs = math.floor(time / 3600)
+    mins = math.floor((time %3600)/60)
+    secs = time % 60
+
+    ret = ""
+    if hrs > 0:
+        ret += str(hrs) + ":" + ("0" if mins < 10 else "")
+    
+    ret += "" + str(mins) + ":" + ("0" if secs < 10 else "")
+    ret += "" + format(secs, '.3f')
+    return ret
+
+@register.filter
+def datetime_filter(dttm):
+    return dttm.strftime("%Y-%m-%d")
 
 @register.simple_tag(takes_context=True)
 def get_site_root(context):
@@ -16,7 +34,6 @@ def get_site_root(context):
 def get_site(context):
     # NB this returns a core.Page, not the implementation-specific model used
     # so object-comparison to self will return false as objects would differ
-    print(context['request'].site)
     return context['request'].site
 
 
@@ -39,28 +56,4 @@ def top_menu(context, parent, calling_page=None):
         'menuitems': menuitems,
         # required by the pageurl tag that we want to use within this template
         'request': context['request'],
-    }
-
-#@register.inclusion_tag('records/tags/lap_results.html', takes_context=True)
-@register.simple_tag(takes_context=True)
-def get_laps(context):
-    request = context['request']
-    search_query = str(request.GET.get('query', None))
-    best = str(request.GET.get('best', None))
-    if best == 'None':
-        is_best = False
-    else:
-        is_best = True
-    
-    if search_query:
-        s = get_search_backend()
-        laps = s.search(search_query, Lap.objects.order_by('-lap_date').filter(best=is_best), operator="and", order_by_relevance=False)
-        print(laps)
-    else:
-        laps = Lap.objects.all().order_by('-lap_date').filter(best=is_best)
-    
-    return {
-        'laps': laps,
-        'request': context['request'],
-        'search_query': search_query,
     }

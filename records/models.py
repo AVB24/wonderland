@@ -159,13 +159,48 @@ class Racer(models.Model):
     class Meta:
         verbose_name_plural = 'racers'
 
+@register_snippet
+class Group(models.Model):
+    name = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255)
+
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('short_name'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'groups'
+
+@register_snippet
+class Region(models.Model):
+    name = models.CharField(max_length=255)
+    link = models.CharField(max_length=255,null=True,blank=True)
+    short_name = models.CharField(max_length=255)
+    
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('link'),
+        FieldPanel('short_name'),
+    ]
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'regions'
 
 @register_snippet
 class Lap(index.Indexed, models.Model):
     racer = models.ForeignKey(Racer, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     raceclass = models.ForeignKey(RaceClass, on_delete=models.CASCADE)
     car = models.ForeignKey(Car, blank=True,on_delete=models.CASCADE)
     event = models.ForeignKey(Event,null=True,blank=True, on_delete=models.CASCADE)
+    region = models.ForeignKey(Region,null=True,blank=True, on_delete=models.CASCADE)
     track = models.ForeignKey(Track, on_delete=models.CASCADE)
     time = models.FloatField()
     lap_date = models.DateField("Lap date")
@@ -187,9 +222,11 @@ class Lap(index.Indexed, models.Model):
     ]
 
     panels = [
+        FieldPanel('region', widget=forms.Select),
         FieldPanel('racer', widget=forms.Select),
         FieldPanel('raceclass', widget=forms.Select),
         FieldPanel('car', widget=forms.Select),
+        FieldPanel('group', widget=forms.Select),
         FieldPanel('event', widget=forms.Select),
         FieldPanel('track', widget=forms.Select),
         FieldPanel('time'),

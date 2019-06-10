@@ -195,6 +195,9 @@ class Region(models.Model):
 
 @register_snippet
 class Lap(index.Indexed, models.Model):
+    def lap_key(self):
+        return "%s_%s_%s_%s_%s" % (self.racer.name, self.group.short_name, self.raceclass.short_name, self.track.short_name, self.lap_date)
+
     racer = models.ForeignKey(Racer, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     raceclass = models.ForeignKey(RaceClass, on_delete=models.CASCADE)
@@ -205,6 +208,7 @@ class Lap(index.Indexed, models.Model):
     time = models.FloatField()
     lap_date = models.DateField("Lap date")
     best = models.BooleanField("Is Best?")
+    key = models.CharField(max_length=255, unique=True, default=lap_key, editable=False)
 
     search_fields = [
         index.FilterField('best'),
@@ -222,6 +226,7 @@ class Lap(index.Indexed, models.Model):
     ]
 
     panels = [
+        FieldPanel('key', widget=forms.Select),
         FieldPanel('region', widget=forms.Select),
         FieldPanel('racer', widget=forms.Select),
         FieldPanel('raceclass', widget=forms.Select),

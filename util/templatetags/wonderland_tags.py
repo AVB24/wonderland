@@ -1,7 +1,6 @@
 import math, datetime
 from django import template
 from django.conf import settings
-from records.models import Lap
 from wagtail.search.backends import get_search_backend
 
 register = template.Library()

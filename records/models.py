@@ -239,6 +239,9 @@ class Lap(index.Indexed, models.Model):
 
     class Meta:
         verbose_name_plural = 'laps'
+        constraints = [
+            models.UniqueConstraint(fields=['racer', 'group', 'raceclass', 'track', 'lap_date'], name='key'),
+        ]
 
 @receiver(post_save, sender=User)
 def create_user_racer(sender, instance, created, **kwargs):

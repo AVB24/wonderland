@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 from django import forms
 from django.db import models
+from wagtail.documents.models import Document, AbstractDocument
 from wagtail.core.models import Page, Orderable
 
 from wagtail.images.edit_handlers import ImageChooserPanel
@@ -11,6 +12,9 @@ from wagtail.admin.edit_handlers import (FieldPanel, InlinePanel, PageChooserPan
 from wagtail.contrib.settings.models import BaseSetting, register_setting
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
+from records.models import Region, Event, Group, Track
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # The LinkFields and RelatedLink meta-models are taken from the WagtailDemo implementation.
 # They provide a multi-field panel that allows you to set a link title and choose either
@@ -115,3 +119,25 @@ class PaginationSettings(BaseSetting):
     panels = [
         FieldPanel('items_per_page'),
     ]
+
+class CustomDocument(AbstractDocument):
+    # Custom field example:
+    region = models.ForeignKey(Region,null=True,blank=True, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event,null=True,blank=True, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, null=True,blank=True, on_delete=models.CASCADE)
+    track = models.ForeignKey(Track, null=True,blank=True, on_delete=models.CASCADE)
+    lap_date = models.DateField("Lap date", null=True,blank=True)
+    
+
+    admin_form_fields = Document.admin_form_fields + (
+        # Add all custom fields names to make them appear in the form:
+        'region',
+        'event',
+        'group',
+        'lap_date'
+    )
+
+@receiver(post_save, sender=CustomDocument)
+def create_lap(sender, instance, created, **kwargs):
+    if created:
+        print("Create Laps")

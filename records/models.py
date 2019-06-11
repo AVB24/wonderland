@@ -102,11 +102,11 @@ class RaceClass(models.Model):
 
 @register_snippet
 class Car(models.Model):
-    make = models.CharField(max_length=255)
-    model = models.CharField(max_length=255)
-    year = models.CharField(max_length=4)
-    color = models.CharField(max_length=255)
-    number = models.CharField(max_length=10)
+    make = models.CharField(max_length=255, null=True, blank=True)
+    model = models.CharField(max_length=255, null=True, blank=True)
+    year = models.CharField(max_length=4, null=True, blank=True)
+    color = models.CharField(max_length=255, null=True, blank=True)
+    number = models.CharField(max_length=10, null=True, blank=True)
 
     panels = [
         FieldPanel('make'),
@@ -124,8 +124,8 @@ class Car(models.Model):
 
 @register_snippet
 class Racer(models.Model):
-    email = models.EmailField(unique=True)
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    email = models.EmailField(unique=True, null=True, blank=True)
+    user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     icon = models.ForeignKey(
         'wagtailimages.Image', null=True, blank=True,
         on_delete=models.SET_NULL, related_name='+'
@@ -136,8 +136,8 @@ class Racer(models.Model):
     city = models.CharField(max_length=255,null=True,blank=True)
     state = models.CharField(max_length=255,null=True,blank=True)
     points = models.IntegerField(null=True,blank=True)
-    cars = models.ManyToManyField(Car)
-    sponsors = models.ManyToManyField(Sponsor,blank=True)
+    cars = models.ManyToManyField(Car, null=True,blank=True)
+    sponsors = models.ManyToManyField(Sponsor,null=True, blank=True)
 
     panels = [
         ImageChooserPanel('icon'),
@@ -195,9 +195,6 @@ class Region(models.Model):
 
 @register_snippet
 class Lap(index.Indexed, models.Model):
-    def lap_key(self):
-        return "%s_%s_%s_%s_%s" % (self.racer.name, self.group.short_name, self.raceclass.short_name, self.track.short_name, self.lap_date)
-
     racer = models.ForeignKey(Racer, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     raceclass = models.ForeignKey(RaceClass, on_delete=models.CASCADE)
@@ -208,7 +205,10 @@ class Lap(index.Indexed, models.Model):
     time = models.FloatField()
     lap_date = models.DateField("Lap date")
     best = models.BooleanField("Is Best?")
-    key = models.CharField(max_length=255, unique=True, default=lap_key, editable=False)
+
+    @property
+    def key(self):
+        return "%s_%s_%s_%s_%s" % (self.racer.name, self.group.short_name, self.raceclass.short_name, self.track.short_name, self.lap_date)
 
     search_fields = [
         index.FilterField('best'),
@@ -226,7 +226,6 @@ class Lap(index.Indexed, models.Model):
     ]
 
     panels = [
-        FieldPanel('key', widget=forms.Select),
         FieldPanel('region', widget=forms.Select),
         FieldPanel('racer', widget=forms.Select),
         FieldPanel('raceclass', widget=forms.Select),
@@ -239,14 +238,13 @@ class Lap(index.Indexed, models.Model):
         FieldPanel('best'),
     ]
 
+    
+
     def __str__(self):
-        return "racer='%s', raceclass='%s', car='%s', event='%s', time='%s'" % (self.racer, self.raceclass, self.car, self.event, self.time)
+        return str(self.key)
 
     class Meta:
         verbose_name_plural = 'laps'
-        constraints = [
-            models.UniqueConstraint(fields=['racer', 'group', 'raceclass', 'track', 'lap_date'], name='key'),
-        ]
 
 @receiver(post_save, sender=User)
 def create_user_racer(sender, instance, created, **kwargs):

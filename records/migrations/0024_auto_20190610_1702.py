@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='lap',
             name='key',
-            field=models.CharField(default=records.models.Lap.lap_key, max_length=255, unique=True),
+            field=models.CharField(default='', max_length=255),
         ),
     ]

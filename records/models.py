@@ -123,8 +123,8 @@ class Car(models.Model):
         verbose_name_plural = 'cars'
 
 @register_snippet
-class Racer(models.Model):
-    email = models.EmailField(unique=True, null=True, blank=True)
+class Racer(index.Indexed, models.Model):
+    email = models.EmailField(unique=True,null=True, blank=True)
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     icon = models.ForeignKey(
         'wagtailimages.Image', null=True, blank=True,
@@ -138,6 +138,10 @@ class Racer(models.Model):
     points = models.IntegerField(null=True,blank=True)
     cars = models.ManyToManyField(Car, null=True,blank=True)
     sponsors = models.ManyToManyField(Sponsor,null=True, blank=True)
+
+    search_fields = [
+        index.SearchField('name', partial_match=True),
+    ]
 
     panels = [
         ImageChooserPanel('icon'),

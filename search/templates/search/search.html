@@ -51,7 +51,7 @@
                     <div class="pagination">
                     {% if search_results.has_previous %}
                         <li class="page-item">
-                        <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}" class="page-link">
+                        <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ search_results.previous_page_number }}" class="page-link">
                             <span>&laquo;</span>
                         </a>
                         </li>
@@ -59,7 +59,7 @@
         
                     {% for page_num in search_results.paginator.page_range %}
                         <li class="page-item {% if page_num == search_results.number %} active{% endif %}">
-                        <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ page_num }}" class="page-link">
+                        <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ page_num }}" class="page-link">
                             {{ page_num }}
                         </a>
                         </li>
@@ -67,7 +67,7 @@
         
                     {% if search_results.has_next %}
                         <li class="page-item">
-                        <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}" class="page-link">
+                        <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ search_results.next_page_number }}" class="page-link">
                             <span>&raquo;</span>
                         </a>
                         </li>

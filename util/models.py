@@ -156,8 +156,8 @@ def process_time(time):
   else:
     return 0.000
 
-def normalize_string(str):
-  normStr = unicodedata.normalize('NFKD',unicode(str,"ISO-8859-1")).encode("ascii","ignore")
+def normalize_string(item):
+  normStr = unicodedata.normalize('NFKD',item)
   if normStr:
     return normStr
   else:
@@ -175,7 +175,7 @@ def validLap(racer_class, point_in_class):
 
 @receiver(post_save, sender=CustomDocument)
 def create_lap(sender, instance, created, **kwargs):
-  if created:
+  if created == False:
     print("Create Laps")
     file = str(instance.file)
     region = instance.region
@@ -184,7 +184,6 @@ def create_lap(sender, instance, created, **kwargs):
     track = instance.track
     lapsToUpload = []
     bestlaps = {}
-    s = get_search_backend()
     search_results = Lap.objects.all().filter(track=track)
     for bl in search_results:
       if bl.best is True:
@@ -192,7 +191,7 @@ def create_lap(sender, instance, created, **kwargs):
 
     print(file)
     if file.endswith('.csv'):
-      with open('media/'+file, 'rt') as f:
+      with open('media/'+file, 'rt', encoding='ISO-8859-1') as f:
         reader = csv.DictReader(f)
         for row in reader:
         #row = row.replace('"','').replace(', ', ' ').strip()
@@ -228,7 +227,7 @@ def create_lap(sender, instance, created, **kwargs):
           
           if validLap(racer_class, point_in_class):
             
-            dt = datetime.strptime(instance.lap_date, '%Y-%m-%d')
+            dt = datetime.strptime(str(instance.lap_date), '%Y-%m-%d')
             pt = process_time(time)
             #t = track #Track.get_or_insert(key_name=self.request.get('track'), name=self.request.get('track'), lap_distance=1.02)
             #g = self.request.get('group')
@@ -236,29 +235,35 @@ def create_lap(sender, instance, created, **kwargs):
             #dt = datetime.strptime(sd, '%Y-%m-%d')
             #tr = Track.get_or_insert(key_name=t, name=t)
             #e = Event.get_or_insert(key_name=g+t+sd, name=g+t, track=tr, date=dt)
-            c, c_updated = Car.objects.get_or_create(make=car_make, model=car_model,year=car_year,color=car_color,number=carnum)
-            cl, cl_updated = RaceClass.objects.get_or_create(name=racer_class)
+            c, c_created = Car.objects.get_or_create(make=car_make, model=car_model,year=car_year,color=car_color,number=carnum)
+            cl, cl_created = RaceClass.objects.get_or_create(name=racer_class)
             
-            r, r_updated = Racer.objects.get_or_create(email=email,name=racer_name, points=int(points), car=c, raceclass=cl)
+            if email is None or email == '':
+              email = racer_name.replace(" ", ".") + '@gmail.com'
+              print(email)
+            r, r_created = Racer.objects.get_or_create(email=email,name=racer_name)
+            r.points=int(points)
+            r.cars.add(c)
+
             if sponsor:
               sponsors = re.split("\s+,\s+", sponsor)
               s1 = []
               for s in sponsors:
-                s, s_updated=Sponsor.objects.get_or_create(name=sponsor)
-                s1.append(s)
-              r.sponsors = s1
-            r.put()
-            lap = Lap.objects.get_or_create(racer=r, group=group, raceclass=cl, car=car, event=event, region=region, track=track, time=pt, lap_date=dt, isBest=False)
+                s, s_created=Sponsor.objects.get_or_create(name=sponsor)
+                r.sponsors.add(s)
+            r.save()
+            lap, lap_created = Lap.objects.get_or_create(racer=r, group=group, raceclass=cl, car=c, event=event, region=region, track=track, time=pt, lap_date=dt, best=False)
             if cl.name in bestlaps:
               if pt < bestlaps[cl.name].time and pt != 0.0:
                 print(str(pt) + ' is better than ' + bestlaps[cl.name].racer.name + 's time of ' + str(bestlaps[cl.name].time))
-                lap.isBest = True					#Mark current record as best
-                bestlaps[cl.name].isBest = False	#Mark old record as not best
-                bestlaps[cl.name].put()				#Commit old record to db
+                lap.best = True					#Mark current record as best
+                bestlaps[cl.name].best = False	#Mark old record as not best
+                bestlaps[cl.name].save()				#Commit old record to db
                 bestlaps[cl.name] = lap 			#Replace record in local dictionary with new best record for class
             elif pt != 0.0:
-              lap.isBest = True
+              lap.best = True
               bestlaps[cl.name] = lap
+            lap.save()
             lapsToUpload.append(lap)
         #db.put(lapsToUpload)
         print(lapsToUpload)

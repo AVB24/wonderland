@@ -9,7 +9,7 @@ from wagtail.search.backends import get_search_backend
 
 
 def search(request):
-    search_query = request.GET.get('query', None)
+    search_query = request.GET.get('query', '')
     best = str(request.GET.get('best', None))
     page = request.GET.get('page', 1)
     pagination_settings = PaginationSettings.for_site(request.site)
@@ -21,7 +21,10 @@ def search(request):
     # Search
     if search_query:
         s = get_search_backend()
-        search_results = s.search(search_query, Lap.objects.order_by('-lap_date').filter(best=is_best), operator="and", order_by_relevance=False)
+        if is_best:
+            search_results = s.search(search_query, Lap.objects.order_by('-lap_date').filter(best=is_best), operator="and", order_by_relevance=False)
+        else:
+            search_results = s.search(search_query, Lap.objects.order_by('-lap_date'), operator="and", order_by_relevance=False)
         #search_results = Page.objects.live().search(search_query)
         query = Query.get(search_query)
 
@@ -29,7 +32,10 @@ def search(request):
         query.add_hit()
     else:
         #search_results = Page.objects.none()
-        search_results = Lap.objects.all().order_by('-lap_date').filter(best=is_best)
+        if is_best:
+            search_results = Lap.objects.all().order_by('-lap_date').filter(best=is_best)
+        else:
+            search_results = Lap.objects.all().order_by('-lap_date')
 
     # Pagination
     paginator = Paginator(search_results, pagination_settings.items_per_page)
@@ -39,6 +45,9 @@ def search(request):
         search_results = paginator.page(1)
     except EmptyPage:
         search_results = paginator.page(paginator.num_pages)
+
+    if is_best == False:
+        is_best = 'None'
 
     return render(request, 'search/search.html', {
         'search_query': search_query,

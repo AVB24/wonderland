@@ -8,4 +8,10 @@
 {% block content %}
     <h1 class='site-title'>{{ page.title }}</h1>
     {{ page.body | richtext }}
+    {% get_next_events as event_results %}
+    <ul>
+    {% for result in event_results %}
+        <a href='https://www.nasaproracing.com/events/{{result.external_id}}' target="_blank"><li>{{result.name}}</li></a>
+    {% endfor %}
+    </ul>
 {% endblock %}

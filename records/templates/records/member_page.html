@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load wagtailcore_tags %}
+{% load static wagtailcore_tags wonderland_tags%}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -9,4 +9,12 @@
     <h3>Welcome, <em>{{ user.username }}</em>!</h3>
     <h4>This is the members-only page.</h4>
     {{ page.body | richtext }}
-{% endblock %}
+
+    <form action="{% url 'member' %}" method="get">
+            <input type="text" name="query"{% if search_query %} value="{{ search_query }}"{% endif %}>
+            <input type="checkbox" name="best" value=True {% if best == True %}checked{%endif%}>Best Lap</input>
+            <input type="submit" value="Search" class="button">
+    </form>
+    {% get_member_laps as search_results %}
+    {% include "search/search_results.html" %}
+{% endblock %}  

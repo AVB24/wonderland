@@ -257,4 +257,5 @@ def create_user_racer(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_racer(sender, instance, **kwargs):
-    instance.racer.save()
+    if kwargs.get("created"):
+        instance.racer.save()

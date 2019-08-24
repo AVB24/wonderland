@@ -124,7 +124,7 @@ class Car(models.Model):
 
 @register_snippet
 class Racer(index.Indexed, models.Model):
-    email = models.EmailField(unique=True,null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     icon = models.ForeignKey(
         'wagtailimages.Image', null=True, blank=True,

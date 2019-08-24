@@ -1,0 +1,67 @@
+{% load static wagtailcore_tags wonderland_tags%}
+{% if search_results %}
+<div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Car #</th>
+                <th>Racer</th>
+                <th>Race Class</th>
+                <th>Track</th>
+                <th>Lap Time</th>
+                <th>Date</th>
+                <th>Is Best?</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for result in search_results %}
+                <tr>
+                    <td>{{result.car.number}}</td>
+                    <td>{{result.racer.name}}</td>
+                    <td>{{result.raceclass.name}}</td>
+                    <td>{{result.track}}</td>
+                    <td>{{result.time | convertTime}}</td>
+                    <td>{{result.lap_date | datetime_filter}}</td>
+                    <td>{{result.best}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% if search_results.paginator.num_pages > 1 %}
+    <div class="container">
+        <div class="row">
+        <div class="col-lg-12">
+            <div class="pagination">
+            {% if search_results.has_previous %}
+                <li class="page-item">
+                <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ search_results.previous_page_number }}" class="page-link">
+                    <span>&laquo;</span>
+                </a>
+                </li>
+            {% endif %}
+
+            {% for page_num in search_results.paginator.page_range %}
+                <li class="page-item {% if page_num == search_results.number %} active{% endif %}">
+                <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ page_num }}" class="page-link">
+                    {{ page_num }}
+                </a>
+                </li>
+            {% endfor %}
+
+            {% if search_results.has_next %}
+                <li class="page-item">
+                <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ search_results.next_page_number }}" class="page-link">
+                    <span>&raquo;</span>
+                </a>
+                </li>
+            {% endif %}
+            </div>
+        </div>
+        </div>
+    </div>
+{% endif %}
+{% elif search_query %}
+No results found
+{% endif %}

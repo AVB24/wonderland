@@ -123,8 +123,13 @@ class PaginationSettings(BaseSetting):
   items_per_page = models.IntegerField(
     default=10
     )
+  page_range = models.IntegerField(
+    default=5
+  )
   panels = [
     FieldPanel('items_per_page'),
+    FieldPanel('page_range'),
+
   ]
 
 class CustomDocument(AbstractDocument):
@@ -220,7 +225,7 @@ def create_lap(sender, instance, created, **kwargs):
           city = row['City']
           state = row['State']
           sponsor = normalize_string(row['Sponsor'])
-          email = row['Email'].lower()
+          email = row['Email']
 
           if time.count(':') == 0 and time:
             time = '0:' + time
@@ -235,42 +240,43 @@ def create_lap(sender, instance, created, **kwargs):
             #dt = datetime.strptime(sd, '%Y-%m-%d')
             #tr = Track.get_or_insert(key_name=t, name=t)
             #e = Event.get_or_insert(key_name=g+t+sd, name=g+t, track=tr, date=dt)
-            c, c_created = Car.objects.get_or_create(make=car_make, model=car_model,year=car_year,color=car_color,number=carnum)
-            print('New Car: ' + str(c_created))
-            cl, cl_created = RaceClass.objects.get_or_create(name=racer_class)
-            print('New RaceClass: ' + str(cl_created))
-            print(email)
-            print(racer_name)
-            if email is None or email == '':
-              email = racer_name.replace(" ", ".") + '@gmail.com'
+            if pt != 0.000:
+              c, c_created = Car.objects.get_or_create(make=car_make, model=car_model,year=car_year,color=car_color,number=carnum)
+              print('New Car: ' + str(c_created))
+              cl, cl_created = RaceClass.objects.get_or_create(name=racer_class)
+              print('New RaceClass: ' + str(cl_created))
               print(email)
               print(racer_name)
-            r, r_created = Racer.objects.get_or_create(email=email,name=racer_name)
-            print('New Racer: ' + str(r_created))
-            r.points=int(points)
-            r.cars.add(c)
+              if email is None or email == '':
+                email = racer_name.replace(" ", ".") + '@gmail.com'
+                print(email)
+                print(racer_name)
+              r, r_created = Racer.objects.get_or_create(email=email.lower(),name=racer_name)
+              print('New Racer: ' + str(r_created))
+              r.points=int(points)
+              r.cars.add(c)
 
-            if sponsor:
-              sponsors = re.split("\s+,\s+", sponsor)
-              s1 = []
-              for s in sponsors:
-                s, s_created=Sponsor.objects.get_or_create(name=sponsor)
-                print('New Sponsor: ' + str(s_created))
-                r.sponsors.add(s)
-            r.save()
-            lap, lap_created = Lap.objects.get_or_create(racer=r, group=group, raceclass=cl, car=c, event=event, region=region, track=track, time=pt, lap_date=dt, best=False)
-            print('New Lap: ' + str(lap_created))
-            if cl.name in bestlaps:
-              if pt < bestlaps[cl.name].time and pt != 0.0:
-                print(str(pt) + ' is better than ' + bestlaps[cl.name].racer.name + 's time of ' + str(bestlaps[cl.name].time))
-                lap.best = True					#Mark current record as best
-                bestlaps[cl.name].best = False	#Mark old record as not best
-                bestlaps[cl.name].save()				#Commit old record to db
-                bestlaps[cl.name] = lap 			#Replace record in local dictionary with new best record for class
-            elif pt != 0.0:
-              lap.best = True
-              bestlaps[cl.name] = lap
-            lap.save()
-            lapsToUpload.append(lap)
+              if sponsor:
+                sponsors = re.split("\s+,\s+", sponsor)
+                s1 = []
+                for s in sponsors:
+                  s, s_created=Sponsor.objects.get_or_create(name=sponsor)
+                  print('New Sponsor: ' + str(s_created))
+                  r.sponsors.add(s)
+              r.save()
+              lap, lap_created = Lap.objects.get_or_create(racer=r, group=group, raceclass=cl, car=c, event=event, region=region, track=track, time=pt, lap_date=dt, best=False)
+              print('New Lap: ' + str(lap_created))
+              if cl.name in bestlaps:
+                if pt < bestlaps[cl.name].time and pt != 0.0:
+                  print(str(pt) + ' is better than ' + bestlaps[cl.name].racer.name + 's time of ' + str(bestlaps[cl.name].time))
+                  lap.best = True					#Mark current record as best
+                  bestlaps[cl.name].best = False	#Mark old record as not best
+                  bestlaps[cl.name].save()				#Commit old record to db
+                  bestlaps[cl.name] = lap 			#Replace record in local dictionary with new best record for class
+              elif pt != 0.0:
+                lap.best = True
+                bestlaps[cl.name] = lap
+              lap.save()
+              lapsToUpload.append(lap)
         #db.put(lapsToUpload)
         print(lapsToUpload)

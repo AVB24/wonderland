@@ -28,7 +28,10 @@ INSTALLED_APPS = [
     'search',
     'util',
     'records',
+    'aloha',
 
+    'ls.joyous',
+    'wagtail.contrib.modeladmin',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.contrib.settings',

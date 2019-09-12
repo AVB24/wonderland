@@ -6,7 +6,6 @@
 {% block body_class %}template-homepage{% endblock %}
 
 {% block content %}
-    <h1 class='site-title'>{{ page.title }}</h1>
     {{ page.body | richtext }}
     {% get_next_events as event_results %}
     <ul>

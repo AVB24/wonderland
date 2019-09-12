@@ -42,7 +42,7 @@ def get_site_root(context):
 def get_site(context):
     # NB this returns a core.Page, not the implementation-specific model used
     # so object-comparison to self will return false as objects would differ
-    return context['request'].site
+    return context['request'].site.site_name
 
 
 # Retrieves the top menu items - the immediate children of the parent page

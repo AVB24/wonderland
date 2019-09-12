@@ -42,7 +42,7 @@
                 </li>
             {% endif %}
 
-            {% for page_num in search_results.paginator.page_range %}
+            {% for page_num in page_range %}
                 <li class="page-item {% if page_num == search_results.number %} active{% endif %}">
                 <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;best={{ best }}&amp;page={{ page_num }}" class="page-link">
                     {{ page_num }}

@@ -24,7 +24,7 @@
         <ul class="nav navbar-nav navbar-right">
           {% if user.is_authenticated %}
             <li><a href="{% url 'logout' %}">Logout</a></li>
-          {% else %}
+          {% elif site_name != 'Van-Blar.com' %}
             <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-user"></span>&nbsp;Register/Login</a></li>
           {% endif %}
         </ul>

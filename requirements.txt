@@ -31,7 +31,6 @@ ls.joyous==0.9.1
 lxml==4.4.1
 num2words==0.5.10
 Pillow==5.4.1
-pkg-resources==0.0.0
 placebo==0.9.0
 python-dateutil==2.6.1
 python-slugify==1.2.4

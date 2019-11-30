@@ -109,7 +109,7 @@ DATABASES = {
 WAGTAILSEARCH_BACKENDS = {
     'default': {
         'BACKEND': 'wagtail.search.backends.elasticsearch6',
-        'URLS': ['http://localhost:9200'],
+        'URLS': ['http://xps:9200'],
         'INDEX': 'wagtail',
         'TIMEOUT': 5,
         'OPTIONS': {},

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load static wagtailcore_tags wonderland_tags%}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+<h1 class='site-title'>{{ page.title }}</h1>
+<h3>Welcome, <em>{{ user.username }}</em>!</h3>
+{{ page.body | richtext }}
+
+{% endblock %}

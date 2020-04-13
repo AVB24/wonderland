@@ -8,6 +8,7 @@ from wagtail.core import urls as wagtail_urls
 from wagtail.contrib.sitemaps.views import sitemap
 from wagtail.documents import urls as wagtaildocs_urls
 from records import views as records_views
+from aloha import views as aloha_views
 
 from search import views as search_views
 
@@ -21,6 +22,7 @@ urlpatterns = [
     url(r'^search/$', search_views.search, name='search'),
     url(r'^member/$', records_views.member, name='member'),
     url(r'account/signup/$', records_views.signup, name='signup'),
+    url(r'aloha-calendar/multidayevent_page_add/$',aloha_views.submit_multidayevent, name='multidayevent_add'),
     url('^sitemap\.xml$', sitemap),
 
     # For anything not caught by a more specific rule above, hand over to

@@ -6,7 +6,7 @@ certifi==2019.3.9
 cfn-flip==1.2.1
 chardet==3.0.4
 Click==7.0
-Django==2.2.1
+Django==2.2.13
 django-modelcluster==4.4
 django-taggit==0.24.0
 django-timezone-field==3.0

@@ -11,7 +11,7 @@ django-modelcluster==4.4
 django-taggit==0.24.0
 django-timezone-field==3.0
 django-treebeard==4.3
-djangorestframework==3.9.4
+djangorestframework==3.11.2
 docopt==0.6.2
 docutils==0.14
 draftjs-exporter==2.1.5
